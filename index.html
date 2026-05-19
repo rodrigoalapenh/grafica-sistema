@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sistema Gráfica</title>
+      <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; background: #f0f2f5; }
+                .header { background: #1a237e; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+                .header h1 { font-size: 1.4rem; }
+                .nav { background: #283593; padding: 0 20px; display: flex; gap: 5px; }
+                .nav button { background: none; border: none; color: #90caf9; padding: 12px 16px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; }
+                .nav button.active, .nav button:hover { color: white; border-bottom-color: #42a5f5; }
+                .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+                .section { display: none; }
+                .section.active { display: block; }
+                .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+                .form-group { display: flex; flex-direction: column; gap: 5px; }
+                label { font-size: 0.85rem; font-weight: bold; color: #555; }
+                input, select, textarea { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+                textarea { resize: vertical; min-height: 80px; }
+                .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
+                .btn-primary { background: #1a237e; color: white; }
+                .btn-success { background: #2e7d32; color: white; }
+                .btn-danger { background: #c62828; color: white; font-size: 0.8rem; padding: 5px 10px; }
+                .btn-warning { background: #f57f17; color: white; font-size: 0.8rem; padding: 5px 10px; }
+                .btn:hover { opacity: 0.9; }
+                table { width: 100%; border-collapse: collapse; }
+                th { background: #e8eaf6; padding: 10px; text-align: left; font-size: 0.85rem; }
+                td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+                tr:hover { background: #f5f5f5; }
+                .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+                .badge-pending { background: #fff3e0; color: #e65100; }
+                .badge-production { background: #e3f2fd; color: #1565c0; }
+                .badge-done { background: #e8f5e9; color: #2e7d32; }
+                .badge-canceled { background: #ffebee; color: #c62828; }
+                .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+                .stat-card { background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                .stat-card .number { font-size: 2rem; font-weight: bold; color: #1a237e; }
+                .stat-card .label { font-size: 0.8rem; color: #777; margin-top: 5px; }
+                .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+                .modal.open { display: flex; }
+                .modal-content { background: white; border-radius: 8px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+                .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #777; }
+                .actions { display: flex; gap: 5px; }
+                #status-msg { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; font-weight: bold; z-index: 9999; display: none; }
+                .status-ok { background: #2e7d32; }
+                .status-err { background: #c62828; }
+                .config-section { margin-bottom: 20px; }
+                .config-section h3 { margin-bottom: 10px; color: #1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 5px; }
+            </style>
+  </head>
+  <body>
+        <div class="header">
+                  <h1>🖨️ Sistema de Gerenciamento - Gráfica</h1>
+                <span id="sync-status" style="font-size:0.8rem; opacity:0.8;">Não sincronizado</span>span>
+        </div>div>
+      <nav class="nav">
+              <button class="active" onclick="showSection('dashboard')">Dashboard</button>button>
+              <button onclick="showSection('pedidos')">Pedidos</button>button>
+              <button onclick="showSection('clientes')">Clientes</button>button>
+              <button onclick="showSection('produtos')">Produtos</button>button>
+              <button onclick="showSection('relatorios')">Relatórios</button>button>
+              <button onclick="showSection('config')">Configurações</button>button>
+      </nav>nav>
+      <div class="container">
+              <!-- DASHBOARD -->
+              <div id="dashboard" class="section active">
+                          <h2 style="margin-bottom:15px;">Visão Geral</h2>
+                          <div class="stats" id="stats-container"></div>div>
+                          <div class="card">
+                                          <h3 style="margin-bottom:15px;">Pedidos Recentes</h3>
+                                          <table><thead><tr><th>Nº</th><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                                                          <tbody id="recent-orders"></tbody>tbody></table>
+                          </div>div>
+              </div>div>
+              <!-- PEDIDOS -->
+              <div id="pedidos" class="section">
+                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                                          <h2>Pedidos</h2>
+                                          <button class="btn btn-primary" onclick="openModal('modal-pedido')">+ Novo Pedido</button>button>
+                          </div>div>
+                          <div class="card">
+                                          <div style="display:flex;gap:10px;margin-bottom:15px;">
+                                                              <input type="text" id="search-pedido" placeholder="Buscar pedido..." oninput="renderPedidos()" style="flex:1;">
+                                                              <select id="filter-status" onchange="renderPedidos()">
+                                                                                      <option value="">Todos os status</option>option>
+                                                                                      <option value="Pendente">Pendente</option>option>
+                                                                                      <option value="Em Produção">Em Produção</option>option>
+                                                                                      <option value="Concluído">Concluído</option>option>
+                                                                                      <option value="Cancelado">Cancelado</option>option>
+                                                              </select>select>
+                                          </div>div>
+                                          <table><thead><tr><th>Nº</th>th><th>Cliente</th>th><th>Produto</th>th><th>Qtd</th>th><th>Valor</th>th><th>Status</th>th><th>Entrega</th>th><th>Ações</th>th></tr></thead>
+                                                          <tbody id="pedidos-table"></tbody>tbody></table>
+                          </div>div>
+              </div>div>
+              <!-- CLIENTES -->
+              <div id="clientes" class="section">
+                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                                          <h2>Clientes</h2>
+                                          <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Novo Cliente</button>button>
+                          </div>div>
+                          <div class="card">
+                                          <input type="text" id="search-cliente" placeholder="Buscar cliente..." oninput="renderClientes()" style="width:100%;margin-bottom:15px;">
+                                          <table><thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>CPF/CNPJ</th><th>Ações</th></tr></thead>
+                                                          <tbody id="clientes-table"></tbody>tbody></table>
+                          </div>div>
+              </div>div>
+              <!-- PRODUTOS -->
+              <div id="produtos" class="section">
+                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                                          <h2>Produtos / Serviços</h2>
+                                          <button class="btn btn-primary" onclick="openModal('modal-produto')">+ Novo Produto</button>button>
+                          </div>div>
+                          <div class="card">
+                                          <table><thead><tr><th>Nome</th>th><th>Categoria</th>th><th>Preço Unit.</th>th><th>Descrição</th>th><th>Ações</th>th></tr></thead>
+                                                          <tbody id="produtos-table"></tbody>tbody></table>
+                          </div>div>
+              </div>div>
+              <!-- RELATÓRIOS -->
+              <div id="relatorios" class="section">
+                          <h2 style="margin-bottom:15px;">Relatórios</h2>
+                          <div class="card">
+                                          <h3 style="margin-bottom:15px;">Resumo Financeiro</h3>
+                                          <div id="relatorio-content"></div>div>
+                          </div>div>
+              </div>div>
+              <!-- CONFIG -->
+              <div id="config" class="section">
+                          <h2 style="margin-bottom:15px;">Configurações</h2>
+                          <div class="card">
+                                          <div class="config-section">
+                                                              <h3>Google Apps Script (Backend)</h3>
+                                                              <p style="font-size:0.85rem;color:#666;margin-bottom:10px;">Cole a URL do seu Web App do Google Apps Script para salvar dados na planilha.</p>p>
+                                                              <div class="form-group">
+                                                                                      <label>URL do Web App</label>
+                                                                                      <input type="url" id="script-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;">
+                                                              </div>div>
+                                                              <button class="btn btn-primary" onclick="saveConfig()" style="margin-top:10px;">Salvar Configuração</button>button>
+                                                              <button class="btn btn-success" onclick="testConnection()" style="margin-top:10px;margin-left:10px;">Testar Conexão</button>button>
+                                          </div>div>
+                                          <div class="config-section">
+                                                              <h3>Dados</h3>
+                                                              <button class="btn btn-warning" onclick="exportData()" style="margin-right:10px;">Exportar JSON</button>button>
+                                                              <button class="btn btn-danger" onclick="clearAllData()">Limpar Todos os Dados</button>button>
+                                          </div>div>
+                          </div>div>
+              </div>div>
+      </div>div></label></tr></th></th></tr></tr></th></th></tr></thead></table></h1>
+  </body>
+      </style></title>
+  </head>
