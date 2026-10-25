@@ -1,156 +1,248 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sistema Gráfica</title>
-      <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: Arial, sans-serif; background: #f0f2f5; }
-                .header { background: #1a237e; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
-                .header h1 { font-size: 1.4rem; }
-                .nav { background: #283593; padding: 0 20px; display: flex; gap: 5px; }
-                .nav button { background: none; border: none; color: #90caf9; padding: 12px 16px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; }
-                .nav button.active, .nav button:hover { color: white; border-bottom-color: #42a5f5; }
-                .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
-                .section { display: none; }
-                .section.active { display: block; }
-                .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-                .form-group { display: flex; flex-direction: column; gap: 5px; }
-                label { font-size: 0.85rem; font-weight: bold; color: #555; }
-                input, select, textarea { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
-                textarea { resize: vertical; min-height: 80px; }
-                .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
-                .btn-primary { background: #1a237e; color: white; }
-                .btn-success { background: #2e7d32; color: white; }
-                .btn-danger { background: #c62828; color: white; font-size: 0.8rem; padding: 5px 10px; }
-                .btn-warning { background: #f57f17; color: white; font-size: 0.8rem; padding: 5px 10px; }
-                .btn:hover { opacity: 0.9; }
-                table { width: 100%; border-collapse: collapse; }
-                th { background: #e8eaf6; padding: 10px; text-align: left; font-size: 0.85rem; }
-                td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
-                tr:hover { background: #f5f5f5; }
-                .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
-                .badge-pending { background: #fff3e0; color: #e65100; }
-                .badge-production { background: #e3f2fd; color: #1565c0; }
-                .badge-done { background: #e8f5e9; color: #2e7d32; }
-                .badge-canceled { background: #ffebee; color: #c62828; }
-                .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-                .stat-card { background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                .stat-card .number { font-size: 2rem; font-weight: bold; color: #1a237e; }
-                .stat-card .label { font-size: 0.8rem; color: #777; margin-top: 5px; }
-                .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-                .modal.open { display: flex; }
-                .modal-content { background: white; border-radius: 8px; padding: 25px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #777; }
-                .actions { display: flex; gap: 5px; }
-                #status-msg { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; font-weight: bold; z-index: 9999; display: none; }
-                .status-ok { background: #2e7d32; }
-                .status-err { background: #c62828; }
-                .config-section { margin-bottom: 20px; }
-                .config-section h3 { margin-bottom: 10px; color: #1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 5px; }
-            </style>
-  </head>
-  <body>
-        <div class="header">
-                  <h1>🖨️ Sistema de Gerenciamento - Gráfica</h1>
-                <span id="sync-status" style="font-size:0.8rem; opacity:0.8;">Não sincronizado</span>span>
-        </div>div>
-      <nav class="nav">
-              <button class="active" onclick="showSection('dashboard')">Dashboard</button>button>
-              <button onclick="showSection('pedidos')">Pedidos</button>button>
-              <button onclick="showSection('clientes')">Clientes</button>button>
-              <button onclick="showSection('produtos')">Produtos</button>button>
-              <button onclick="showSection('relatorios')">Relatórios</button>button>
-              <button onclick="showSection('config')">Configurações</button>button>
-      </nav>nav>
-      <div class="container">
-              <!-- DASHBOARD -->
-              <div id="dashboard" class="section active">
-                          <h2 style="margin-bottom:15px;">Visão Geral</h2>
-                          <div class="stats" id="stats-container"></div>div>
-                          <div class="card">
-                                          <h3 style="margin-bottom:15px;">Pedidos Recentes</h3>
-                                          <table><thead><tr><th>Nº</th><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
-                                                          <tbody id="recent-orders"></tbody>tbody></table>
-                          </div>div>
-              </div>div>
-              <!-- PEDIDOS -->
-              <div id="pedidos" class="section">
-                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                                          <h2>Pedidos</h2>
-                                          <button class="btn btn-primary" onclick="openModal('modal-pedido')">+ Novo Pedido</button>button>
-                          </div>div>
-                          <div class="card">
-                                          <div style="display:flex;gap:10px;margin-bottom:15px;">
-                                                              <input type="text" id="search-pedido" placeholder="Buscar pedido..." oninput="renderPedidos()" style="flex:1;">
-                                                              <select id="filter-status" onchange="renderPedidos()">
-                                                                                      <option value="">Todos os status</option>option>
-                                                                                      <option value="Pendente">Pendente</option>option>
-                                                                                      <option value="Em Produção">Em Produção</option>option>
-                                                                                      <option value="Concluído">Concluído</option>option>
-                                                                                      <option value="Cancelado">Cancelado</option>option>
-                                                              </select>select>
-                                          </div>div>
-                                          <table><thead><tr><th>Nº</th>th><th>Cliente</th>th><th>Produto</th>th><th>Qtd</th>th><th>Valor</th>th><th>Status</th>th><th>Entrega</th>th><th>Ações</th>th></tr></thead>
-                                                          <tbody id="pedidos-table"></tbody>tbody></table>
-                          </div>div>
-              </div>div>
-              <!-- CLIENTES -->
-              <div id="clientes" class="section">
-                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                                          <h2>Clientes</h2>
-                                          <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Novo Cliente</button>button>
-                          </div>div>
-                          <div class="card">
-                                          <input type="text" id="search-cliente" placeholder="Buscar cliente..." oninput="renderClientes()" style="width:100%;margin-bottom:15px;">
-                                          <table><thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>CPF/CNPJ</th><th>Ações</th></tr></thead>
-                                                          <tbody id="clientes-table"></tbody>tbody></table>
-                          </div>div>
-              </div>div>
-              <!-- PRODUTOS -->
-              <div id="produtos" class="section">
-                          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                                          <h2>Produtos / Serviços</h2>
-                                          <button class="btn btn-primary" onclick="openModal('modal-produto')">+ Novo Produto</button>button>
-                          </div>div>
-                          <div class="card">
-                                          <table><thead><tr><th>Nome</th>th><th>Categoria</th>th><th>Preço Unit.</th>th><th>Descrição</th>th><th>Ações</th>th></tr></thead>
-                                                          <tbody id="produtos-table"></tbody>tbody></table>
-                          </div>div>
-              </div>div>
-              <!-- RELATÓRIOS -->
-              <div id="relatorios" class="section">
-                          <h2 style="margin-bottom:15px;">Relatórios</h2>
-                          <div class="card">
-                                          <h3 style="margin-bottom:15px;">Resumo Financeiro</h3>
-                                          <div id="relatorio-content"></div>div>
-                          </div>div>
-              </div>div>
-              <!-- CONFIG -->
-              <div id="config" class="section">
-                          <h2 style="margin-bottom:15px;">Configurações</h2>
-                          <div class="card">
-                                          <div class="config-section">
-                                                              <h3>Google Apps Script (Backend)</h3>
-                                                              <p style="font-size:0.85rem;color:#666;margin-bottom:10px;">Cole a URL do seu Web App do Google Apps Script para salvar dados na planilha.</p>p>
-                                                              <div class="form-group">
-                                                                                      <label>URL do Web App</label>
-                                                                                      <input type="url" id="script-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;">
-                                                              </div>div>
-                                                              <button class="btn btn-primary" onclick="saveConfig()" style="margin-top:10px;">Salvar Configuração</button>button>
-                                                              <button class="btn btn-success" onclick="testConnection()" style="margin-top:10px;margin-left:10px;">Testar Conexão</button>button>
-                                          </div>div>
-                                          <div class="config-section">
-                                                              <h3>Dados</h3>
-                                                              <button class="btn btn-warning" onclick="exportData()" style="margin-right:10px;">Exportar JSON</button>button>
-                                                              <button class="btn btn-danger" onclick="clearAllData()">Limpar Todos os Dados</button>button>
-                                          </div>div>
-                          </div>div>
-              </div>div>
-      </div>div></label></tr></th></th></tr></tr></th></th></tr></thead></table></h1>
-  </body>
-      </style></title>
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Gráfica</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>🖨️ <span id="nome-empresa">Sistema Gráfica</span></h1>
+    <span id="sync-status" class="sync">Somente neste navegador</span>
+  </header>
+
+  <nav class="nav" id="nav">
+    <button data-sec="painel" class="active">Painel</button>
+    <button data-sec="novo">📸 Ler print</button>
+    <button data-sec="pedidos">Pedidos</button>
+    <button data-sec="cobrancas">Cobranças</button>
+    <button data-sec="fechamentos">Fechamentos</button>
+    <button data-sec="clientes">Clientes</button>
+    <button data-sec="produtos">Tabela de preços</button>
+    <button data-sec="config">Configurações</button>
+  </nav>
+
+  <main class="container">
+    <!-- PAINEL -->
+    <section id="painel" class="section active">
+      <div class="stats" id="stats"></div>
+      <div id="alertas-fechamento"></div>
+      <div class="card">
+        <div class="card-head">
+          <h3>📋 Lista de cobrança do dia <small id="lista-data"></small></h3>
+          <div class="actions">
+            <button class="btn btn-light" id="btn-copiar-lista">Copiar lista</button>
+            <button class="btn btn-light" id="btn-regerar-lista">Atualizar agora</button>
+          </div>
+        </div>
+        <div id="lista-devedores"></div>
+      </div>
+    </section>
+
+    <!-- LER PRINT -->
+    <section id="novo" class="section">
+      <div class="card">
+        <h3>1. Cole o print do pedido</h3>
+        <p class="hint">Tire o print da conversa do WhatsApp e cole aqui com <b>Ctrl+V</b>, arraste a imagem ou toque para escolher. Pode colar vários prints da mesma conversa.</p>
+        <div class="dropzone" id="drop-pedido" tabindex="0">
+          <input type="file" accept="image/*" multiple id="file-pedido" hidden>
+          <div class="dz-msg">📋 Cole (Ctrl+V), arraste ou clique para escolher o print</div>
+          <div class="thumbs" id="thumbs-pedido"></div>
+        </div>
+        <div class="form-grid" style="margin-top:12px">
+          <div class="form-group">
+            <label>Data em que o print foi tirado</label>
+            <input type="date" id="data-print">
+          </div>
+          <div class="form-group">
+            <label>Cliente (opcional – a IA identifica)</label>
+            <select id="cliente-print"></select>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn btn-primary" id="btn-ler-print">🤖 Ler print com IA</button>
+          <button class="btn btn-light" id="btn-pedido-manual">Lançar manualmente</button>
+          <button class="btn btn-light" id="btn-limpar-print">Limpar</button>
+        </div>
+      </div>
+      <div id="revisao"></div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section id="pedidos" class="section">
+      <div class="card">
+        <div class="filters">
+          <input type="search" id="busca-pedido" placeholder="Buscar cliente, arquivo, nº...">
+          <select id="filtro-tipo">
+            <option value="">Todos os tipos</option>
+            <option value="producao">Produção</option>
+            <option value="orcamento">Orçamento</option>
+          </select>
+          <select id="filtro-status-pedido">
+            <option value="">Todos os status</option>
+            <option value="Em produção">Em produção</option>
+            <option value="Pronto">Pronto</option>
+            <option value="Entregue">Entregue</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <select id="filtro-fat">
+            <option value="">Faturamento: todos</option>
+            <option value="afaturar">A faturar</option>
+            <option value="aberto">Cobrança em aberto</option>
+            <option value="pago">Pago</option>
+          </select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Status</th><th>Financeiro</th><th></th></tr></thead>
+          <tbody id="tb-pedidos"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- COBRANÇAS -->
+    <section id="cobrancas" class="section">
+      <div class="card">
+        <h3>💸 Dar baixa com comprovante</h3>
+        <p class="hint">Cole o print do comprovante (PIX, TED, boleto). A IA lê o valor e o pagador e sugere qual cobrança baixar.</p>
+        <div class="dropzone" id="drop-comprov" tabindex="0">
+          <input type="file" accept="image/*" id="file-comprov" hidden>
+          <div class="dz-msg">📋 Cole (Ctrl+V), arraste ou clique para escolher o comprovante</div>
+          <div class="thumbs" id="thumbs-comprov"></div>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn btn-success" id="btn-ler-comprov">🤖 Ler comprovante</button>
+          <button class="btn btn-light" id="btn-limpar-comprov">Limpar</button>
+        </div>
+        <div id="baixa-revisao"></div>
+      </div>
+      <div class="card">
+        <div class="filters">
+          <input type="search" id="busca-cob" placeholder="Buscar cliente ou nº...">
+          <select id="filtro-cob">
+            <option value="abertas">Em aberto</option>
+            <option value="vencidas">Vencidas</option>
+            <option value="paga">Pagas</option>
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Nº</th><th>Cliente</th><th>Tipo</th><th>Emissão</th><th>Vencimento</th><th>Valor</th><th>Saldo</th><th>Status</th><th></th></tr></thead>
+          <tbody id="tb-cobrancas"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- FECHAMENTOS -->
+    <section id="fechamentos" class="section">
+      <div id="fech-pendentes"></div>
+      <div class="card">
+        <h3>Gerar fechamento</h3>
+        <p class="hint">Junta os pedidos de produção ainda não cobrados de um cliente num período e gera uma única cobrança.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente</label><select id="fech-cliente"></select></div>
+          <div class="form-group"><label>De</label><input type="date" id="fech-inicio"></div>
+          <div class="form-group"><label>Até</label><input type="date" id="fech-fim"></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn btn-light" data-preset="quinzena">Última quinzena</button>
+          <button class="btn btn-light" data-preset="mes">Mês passado</button>
+          <button class="btn btn-light" data-preset="mesatual">Este mês</button>
+          <button class="btn btn-light" data-preset="cliente">Período do cliente</button>
+          <button class="btn btn-light" data-preset="tudo">Tudo em aberto</button>
+        </div>
+        <div id="fech-preview" style="margin-top:15px"></div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section id="clientes" class="section">
+      <div class="card">
+        <div class="card-head">
+          <input type="search" id="busca-cliente" placeholder="Buscar cliente..." style="flex:1">
+          <button class="btn btn-primary" id="btn-novo-cliente">+ Novo cliente</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Nome</th><th>Telefone</th><th>Fechamento</th><th>Prazo</th><th>Em aberto</th><th>A faturar</th><th></th></tr></thead>
+          <tbody id="tb-clientes"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section id="produtos" class="section">
+      <div class="card">
+        <div class="card-head">
+          <p class="hint" style="margin:0">Materiais são cobrados por unidade/folha. Acabamentos (recorte, laminação) somam ao preço da folha. <b>Os valores iniciais são exemplos — ajuste para os seus.</b></p>
+          <button class="btn btn-primary" id="btn-novo-produto">+ Novo item</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Nome</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Faixas de quantidade</th><th>Palavras que a IA reconhece</th><th></th></tr></thead>
+          <tbody id="tb-produtos"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="config" class="section">
+      <div class="card">
+        <h3>Empresa e PIX</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Nome da gráfica</label><input id="cfg-empresa"></div>
+          <div class="form-group"><label>Chave PIX</label><input id="cfg-pixChave" placeholder="CNPJ, e-mail, telefone ou chave aleatória"></div>
+          <div class="form-group"><label>Nome do recebedor (PIX)</label><input id="cfg-pixNome"></div>
+          <div class="form-group"><label>Cidade (PIX)</label><input id="cfg-pixCidade"></div>
+          <div class="form-group"><label>Prazo padrão de pagamento (dias)</label><input type="number" min="0" id="cfg-prazoPadrao"></div>
+          <div class="form-group"><label>Horário da lista diária de devedores</label><input type="time" id="cfg-horaLista"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Inteligência artificial (Claude)</h3>
+        <p class="hint">Crie uma chave em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Ela fica salva só neste navegador e é enviada apenas para a API da Anthropic.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>Chave da API</label><input type="password" id="cfg-apiKey" placeholder="sk-ant-..."></div>
+          <div class="form-group"><label>Modelo</label>
+            <select id="cfg-modelo">
+              <option value="claude-opus-5-5">Claude Opus 5.5 (recomendado)</option>
+              <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (mais barato)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Planilha Google + lista diária automática</h3>
+        <p class="hint">Opcional. Com o Google Apps Script (arquivo <code>apps-script/Code.gs</code>, instruções no README) os dados vão para uma planilha, ficam disponíveis em outros aparelhos e a lista de devedores chega por e-mail todo dia de manhã.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>URL do Web App</label><input id="cfg-scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
+          <div class="form-group"><label>Token secreto (o mesmo do script)</label><input type="password" id="cfg-scriptToken"></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn btn-light" id="btn-sync-enviar">Enviar para a planilha</button>
+          <button class="btn btn-light" id="btn-sync-baixar">Baixar da planilha</button>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-salvar-config">Salvar configurações</button>
+        <button class="btn btn-light" id="btn-exportar">Exportar backup (JSON)</button>
+        <label class="btn btn-light">Importar backup<input type="file" accept="application/json" id="file-importar" hidden></label>
+        <button class="btn btn-danger" id="btn-apagar-tudo">Apagar todos os dados</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="modal-titulo"></h3><button class="close-btn" id="modal-fechar">×</button></div>
+      <div id="modal-corpo"></div>
+    </div>
+  </div>
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/pix.js"></script>
+  <script src="js/ia.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
