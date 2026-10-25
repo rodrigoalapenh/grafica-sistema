@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imagens da tabela</title>
+  <!-- Artes da tabela de preços para enviar aos clientes (540x675, exportadas em 1080x1350).
+       Abra no navegador para ver; gere os PNG com: node scripts/gerar-imagens.js -->
+  <style>
+    :root { --ink: #26132b; --plum: #5b2160; --gold: #f2a541; --muted: #7a6c7b; --line: #eadfe6; --ok: #1f8a4c; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #ddd; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); }
+    .lista { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; justify-content: center; }
+    .arte { width: 540px; height: 675px; background: #fbf8f6; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .topo { background: linear-gradient(135deg, var(--plum), var(--ink)); color: #fff; padding: 26px 30px 22px; }
+    .marca { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+    .topo h1 { margin: 6px 0 4px; font-size: 34px; line-height: 1.05; letter-spacing: -.5px; }
+    .topo p { margin: 0; font-size: 13.5px; opacity: .88; }
+    .corpo { flex: 1; padding: 14px 30px 0; display: flex; flex-direction: column; justify-content: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; padding: 0 0 8px; text-align: right; }
+    th:first-child { text-align: left; }
+    td { padding: 12px 0; border-top: 1px solid var(--line); text-align: right; vertical-align: top; }
+    td:first-child { text-align: left; font-weight: 800; font-size: 16px; white-space: nowrap; }
+    td b { font-size: 17px; display: block; }
+    td small { font-size: 11px; color: var(--muted); }
+    .bloco { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+    .bloco h2 { margin: 0; font-size: 19px; }
+    .bloco .det { margin: 2px 0 8px; font-size: 12.5px; color: var(--muted); }
+    .qtds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .q { background: #f6eff4; border-radius: 10px; padding: 8px 6px; text-align: center; }
+    .q span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 700; }
+    .q b { display: block; font-size: 18px; }
+    .q small { font-size: 10.5px; color: var(--muted); }
+    .selos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .selo { background: #fff3e0; color: #6b3f00; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .kit-preco { text-align: center; margin: 22px 0 12px; }
+    .kit-preco .por + span, .kit-preco span { display: block; margin-top: 4px; }
+    .kit-preco .por { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .kit-preco b { display: block; font-size: 52px; letter-spacing: -1px; color: var(--plum); line-height: 1; }
+    .kit-preco span { font-size: 14px; color: var(--ok); font-weight: 700; }
+    .itens { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .item { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 13px; }
+    .item b { display: block; font-size: 22px; color: var(--plum); }
+    .rodape { background: var(--gold); color: var(--ink); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
+    .rodape b { font-size: 15px; }
+    .rodape .wa { font-weight: 800; font-size: 15px; white-space: nowrap; }
+    .nota { padding: 8px 30px 12px; font-size: 11.5px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="lista" id="lista"></div>
+  <script src="js/catalogo.js"></script>
+  <script>
+  'use strict';
+  const reais = v => 'R$ ' + v.toLocaleString('pt-BR');
+  const cent = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const un = n => n.toLocaleString('pt-BR');
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const prod = id => CATALOGO.find(c => c.id === id);
+  const fone = () => {
+    const d = LOJA.whatsapp.replace(/^55/, '');
+    return `(${d.slice(0, 2)}) ${d.slice(2, -4)}-${d.slice(-4)}`;
+  };
+
+  const topo = (titulo, sub) => `<div class="topo"><div class="marca">${esc(LOJA.nome)}</div><h1>${titulo}</h1><p>${esc(sub)}</p></div>`;
+  const rodape = () => `
+    <div class="nota">Arte grátis · ${LOJA.descontoPix}% off no PIX ou até ${LOJA.parcelas}x sem juros · frete pelo CEP para todo o Brasil</div>
+    <div class="rodape"><div><b>Peça pelo WhatsApp</b><br>${esc(LOJA.instagram || LOJA.cidade)}</div><div class="wa">💬 ${fone()}</div></div>`;
+
+  function arteSeda() {
+    const c = prod('seda');
+    const qtds = Object.keys(c.variantes[0].pacotes).map(Number);
+    const linhas = c.variantes.map(v => `<tr><td>${esc(v.nome)}</td>${qtds.map(q =>
+      `<td><b>${reais(v.pacotes[q])}</b><small>${cent(v.pacotes[q] / q)} un</small></td>`).join('')}</tr>`).join('');
+    return `<div class="arte" data-nome="tabela-papel-seda">
+      ${topo('Papel seda<br>personalizado', c.detalhes)}
+      <div class="corpo">
+        <table><thead><tr><th>Tamanho</th>${qtds.map(q => `<th>${un(q)} un</th>`).join('')}</tr></thead><tbody>${linhas}</tbody></table>
+        <div class="selos"><span class="selo">${esc(c.prazo)}</span><span class="selo">${esc(c.extra.nome)}: + ${reais(c.extra.preco)}</span><span class="selo">Mínimo 500 un</span></div>
+      </div>${rodape()}</div>`;
+  }
+
+  function arteAdesivos() {
+    const bloco = c => {
+      const v = c.variantes[0];
+      const qtds = Object.keys(v.pacotes).map(Number);
+      return `<div class="bloco"><h2>${esc(c.nome)}</h2><p class="det">${esc(c.detalhes)} · ${esc(c.prazo.toLowerCase())}</p>
+        <div class="qtds">${qtds.map(q => `<div class="q"><span>${un(q)} un</span><b>${reais(v.pacotes[q])}</b><small>${cent(v.pacotes[q] / q)} un</small></div>`).join('')}</div></div>`;
+    };
+    return `<div class="arte" data-nome="tabela-adesivos">
+      ${topo('Adesivos<br>personalizados', 'Selos redondos para embalagens, sacolas e caixas')}
+      <div class="corpo">${bloco(prod('adesivo'))}${bloco(prod('hotstamping'))}
+        <div class="selos"><span class="selo">Outros tamanhos sob consulta</span><span class="selo">Mínimo 500 un</span></div>
+      </div>${rodape()}</div>`;
+  }
+
+  function arteKit() {
+    const c = prod('kit');
+    const preco = c.variantes[0].pacotes[1];
+    return `<div class="arte" data-nome="tabela-kit">
+      ${topo('Kit marca<br>completa', 'Tudo o que sua embalagem precisa, com a sua marca')}
+      <div class="corpo">
+        <div class="itens">
+          <div class="item"><b>1.000</b>folhas de papel seda 64x30 cm</div>
+          <div class="item"><b>1.000</b>adesivos personalizados 4x4 cm</div>
+          <div class="item"><b>1.000</b>tags para roupa 5x9 cm</div>
+          <div class="item"><b>1.000</b>cartões de agradecimento</div>
+        </div>
+        <div class="kit-preco"><b>${reais(preco)}</b><div class="por">${cent(preco / 1000)} por embalagem completa</div>
+          <span>${cent(Math.round(preco * (100 - LOJA.descontoPix)) / 100)} no PIX</span></div>
+        <div class="selos" style="justify-content:center"><span class="selo">${esc(c.prazo)}</span><span class="selo">Arte grátis</span></div>
+      </div>${rodape()}</div>`;
+  }
+
+  document.getElementById('lista').innerHTML = arteSeda() + arteAdesivos() + arteKit();
+  </script>
+</body>
+</html>
