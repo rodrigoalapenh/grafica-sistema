@@ -22,12 +22,13 @@ function dbVazio() {
     atualizadoEm: new Date().toISOString(),
     seq: { pedido: 0, cobranca: 0 },
     clientes: [],
-    produtos: PRODUTOS_EXEMPLO.map(p => ({ ...p })),
+    produtos: [...produtosDoCatalogo(), ...PRODUTOS_EXEMPLO.map(p => ({ ...p }))],
+    catalogoImportado: true,
     pedidos: [],
     cobrancas: [],
     listas: {},
     config: {
-      empresa: 'Minha Gráfica',
+      empresa: LOJA.nome,
       apiKey: '',
       modelo: 'claude-opus-5-5',
       pixChave: '',
@@ -49,7 +50,14 @@ function carregarDB() {
     if (bruto) {
       const base = dbVazio();
       const d = JSON.parse(bruto);
-      return { ...base, ...d, seq: { ...base.seq, ...d.seq }, config: { ...base.config, ...d.config } };
+      const db = { ...base, ...d, seq: { ...base.seq, ...d.seq }, config: { ...base.config, ...d.config } };
+      // bancos criados antes do catálogo recebem os produtos dele uma única vez
+      if (!d.catalogoImportado) {
+        const ids = new Set(db.produtos.map(p => p.id));
+        db.produtos.push(...produtosDoCatalogo().filter(p => !ids.has(p.id)));
+        db.catalogoImportado = true;
+      }
+      return db;
     }
   } catch (e) {
     console.error('Falha ao ler dados locais', e);

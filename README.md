@@ -1,6 +1,10 @@
 # grafica-sistema
 Sistema de gerenciamento para gráfica: lê o print do pedido do WhatsApp, lança na tabela com os preços, gera a cobrança com PIX, dá baixa pelo comprovante e monta a lista diária de devedores.
 
+## Página de vendas (catálogo)
+
+`catalogo.html` é a tabela de preços para o cliente: ele escolhe produto, tamanho e quantidade, monta o pedido e envia pelo WhatsApp com a mensagem pronta (itens, total e total no PIX). Os preços e os dados da loja ficam em `js/catalogo.js` – o mesmo arquivo alimenta a **Tabela de preços** do sistema. A estratégia de preços está em [`ESTRATEGIA.md`](ESTRATEGIA.md).
+
 ## Como funciona
 
 1. **Ler print** – cole o print da conversa (Ctrl+V, arrastar ou escolher arquivo). A IA (Claude) identifica:
@@ -48,6 +52,7 @@ A partir daí cada alteração é enviada para a planilha (abas *Clientes*, *Ped
 | Arquivo | Conteúdo |
 |---|---|
 | `index.html`, `css/style.css` | Interface |
+| `catalogo.html`, `js/catalogo.js` | Página de vendas e tabela de preços por pacote |
 | `js/db.js` | Dados, preços, cobranças, fechamentos e lista de devedores |
 | `js/ia.js` | Leitura de prints e comprovantes com a API do Claude |
 | `js/pix.js` | Código PIX copia e cola (BR Code) |
