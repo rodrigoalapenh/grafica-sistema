@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabela de preços</title>
+  <meta name="description" content="Papel seda personalizado, adesivos e hot stamping para sua marca. Veja os preços e peça pelo WhatsApp.">
+  <style>
+    :root {
+      --ink: #26132b; --plum: #5b2160; --plum-2: #7a2f80; --gold: #f2a541; --gold-ink: #6b3f00;
+      --bg: #faf7f5; --card: #fff; --line: #ece4e8; --muted: #6f6370; --ok: #1f9d55; --wa: #25d366;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.45; padding-bottom: 96px; }
+    a { color: inherit; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+    .hero { background: linear-gradient(135deg, var(--plum), var(--ink)); color: #fff; padding: 36px 0 44px; }
+    .hero h1 { margin: 0 0 6px; font-size: clamp(28px, 6vw, 44px); letter-spacing: -.5px; }
+    .hero p { margin: 0 0 18px; opacity: .9; font-size: 17px; max-width: 560px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 20px; font-weight: 700; font-size: 15px; cursor: pointer; text-decoration: none; }
+    .btn-wa { background: var(--wa); color: #06361a; }
+    .btn-gold { background: var(--gold); color: var(--ink); }
+    .btn-line { background: transparent; border: 1.5px solid var(--plum); color: var(--plum); padding: 8px 14px; font-size: 14px; }
+    .btn-line.added { background: var(--plum); color: #fff; }
+    .conds { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: -24px; }
+    .cond { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; box-shadow: 0 4px 14px rgba(38, 19, 43, .06); }
+    .cond b { display: block; color: var(--plum); }
+    h2 { font-size: 24px; margin: 36px 0 12px; }
+    .prod { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; margin-bottom: 18px; }
+    .prod-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+    .prod h3 { margin: 0; font-size: 21px; }
+    .prod .det { color: var(--muted); font-size: 14px; margin: 4px 0 0; }
+    .tag { font-size: 12px; font-weight: 700; background: #fff3e0; color: var(--gold-ink); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
+    .chip { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 14px; font-weight: 600; cursor: pointer; font-size: 14px; color: var(--ink); }
+    .chip.on { border-color: var(--plum); background: var(--plum); color: #fff; }
+    .rows { margin-top: 6px; }
+    .row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+    .row:first-child { border-top: 0; }
+    .row .nome { font-weight: 600; }
+    .row .unit { color: var(--muted); font-size: 13px; }
+    .row .preco { font-weight: 800; font-size: 19px; text-align: right; white-space: nowrap; }
+    .row .pix { display: block; font-size: 12px; font-weight: 600; color: var(--ok); }
+    .extra { display: flex; gap: 8px; align-items: center; margin-top: 10px; font-size: 14px; color: var(--muted); }
+    .consulta { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+    .consulta span { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 14px; }
+    .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; counter-reset: p; }
+    .passo { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; font-size: 14px; }
+    .passo::before { counter-increment: p; content: counter(p); display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--gold); font-weight: 800; margin-bottom: 6px; }
+    .passo b { display: block; }
+    details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+    summary { font-weight: 600; cursor: pointer; }
+    footer { margin-top: 40px; padding: 24px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+    .cart { position: fixed; left: 0; right: 0; bottom: 0; background: var(--ink); color: #fff; box-shadow: 0 -6px 24px rgba(0, 0, 0, .2); transform: translateY(110%); transition: transform .2s; z-index: 10; }
+    .cart.show { transform: none; }
+    .cart-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 0; }
+    .cart-bar .tot { font-size: 14px; }
+    .cart-bar .tot b { font-size: 19px; display: block; }
+    .cart-list { max-height: 40vh; overflow: auto; border-bottom: 1px solid rgba(255, 255, 255, .15); display: none; }
+    .cart.open .cart-list { display: block; }
+    .ci { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 14px; border-top: 1px solid rgba(255, 255, 255, .1); }
+    .ci button { background: none; border: 0; color: #ffb4b4; cursor: pointer; font-size: 13px; }
+    .link { background: none; border: 0; color: #fff; text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0; }
+    @media (max-width: 560px) {
+      .row { grid-template-columns: 1fr auto; }
+      .row .btn-line { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
+      .cart-bar .btn { padding: 11px 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <h1 id="loja-nome"></h1>
+      <p>Papel seda, adesivos e hot stamping com a sua marca. Montamos a arte de graça e entregamos em todo o Brasil.</p>
+      <a class="btn btn-wa" id="wa-topo" target="_blank" rel="noopener">💬 Pedir orçamento no WhatsApp</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="conds" id="conds"></div>
+
+    <h2>Tabela de preços</h2>
+    <div id="produtos"></div>
+
+    <h2>Também fazemos (sob consulta)</h2>
+    <div class="consulta" id="consulta"></div>
+    <a class="btn btn-line" id="wa-consulta" target="_blank" rel="noopener">Pedir orçamento desses itens</a>
+
+    <h2>Como funciona</h2>
+    <div class="passos">
+      <div class="passo"><b>Monte o pedido</b>Escolha produto, tamanho e quantidade aqui na tabela.</div>
+      <div class="passo"><b>Envie no WhatsApp</b>A mensagem já vai pronta. Mande também seu logo e o CEP.</div>
+      <div class="passo"><b>Aprove a arte</b>Montamos a arte sem custo e você aprova antes de imprimir.</div>
+      <div class="passo"><b>Produção e envio</b>50% para iniciar, 50% quando estiver pronto. Enviamos com rastreio.</div>
+    </div>
+
+    <h2>Dúvidas frequentes</h2>
+    <details><summary>Qual a quantidade mínima?</summary><p>500 unidades por modelo, para papel seda e adesivos.</p></details>
+    <details><summary>Preciso ter a arte pronta?</summary><p>Não. Basta enviar seu logo; montamos a arte de impressão sem custo e enviamos para aprovação.</p></details>
+    <details><summary>Quanto tempo leva?</summary><p>Adesivos em até 5 dias úteis e papel seda em até 12 dias úteis, contados após a aprovação da arte e o pagamento da entrada.</p></details>
+    <details><summary>Quanto custa o frete?</summary><p>Depende do CEP. Calculamos e informamos junto com a confirmação do pedido.</p></details>
+    <details><summary>Quais as formas de pagamento?</summary><p id="faq-pag"></p></details>
+  </main>
+
+  <footer><div class="wrap" id="rodape"></div></footer>
+
+  <div class="cart" id="cart">
+    <div class="wrap">
+      <div class="cart-list" id="cart-list"></div>
+      <div class="cart-bar">
+        <div class="tot"><span id="cart-qtd"></span> <button class="link" id="cart-ver">ver itens</button><b id="cart-total"></b><span id="cart-pix"></span></div>
+        <a class="btn btn-wa" id="cart-enviar" target="_blank" rel="noopener">Enviar pedido no WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/catalogo.js"></script>
+  <script>
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const brl = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const centavos = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const comPix = v => Math.round(v * (100 - LOJA.descontoPix)) / 100;
+  const waLink = texto => `https://wa.me/${LOJA.whatsapp}?text=${encodeURIComponent(texto)}`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const qtdSel = {};   // produto -> quantidade escolhida
+  const extraSel = {}; // produto -> segunda cor marcada
+  let carrinho = [];   // { chave, texto, valor }
+
+  function qtdsDe(c) { return Object.keys(c.variantes[0].pacotes).map(Number).sort((a, b) => a - b); }
+
+  function renderProdutos() {
+    $('#produtos').innerHTML = CATALOGO.map(c => {
+      const qtds = qtdsDe(c);
+      const q = qtdSel[c.id] ?? (qtds.includes(1000) ? 1000 : qtds[0]);
+      qtdSel[c.id] = q;
+      const chips = qtds.length > 1 ? `<div class="chips">${qtds.map(n =>
+        `<button class="chip ${n === q ? 'on' : ''}" data-p="${c.id}" data-q="${n}">${n.toLocaleString('pt-BR')} un</button>`).join('')}</div>` : '';
+      const rows = c.variantes.map(v => {
+        const total = v.pacotes[q] + (extraSel[c.id] ? c.extra.preco : 0);
+        const chave = `${v.id}|${q}|${extraSel[c.id] ? 1 : 0}`;
+        const noCarrinho = carrinho.some(i => i.chave === chave);
+        return `<div class="row">
+          <div><div class="nome">${esc(v.nome)}</div>${q > 1 ? `<div class="unit">R$ ${centavos(v.pacotes[q] / q)} a unidade</div>` : ''}</div>
+          <div class="preco">${brl(total)}<span class="pix">${brl(comPix(total))} no PIX</span></div>
+          <button class="btn btn-line ${noCarrinho ? 'added' : ''}" data-add="${chave}" data-p="${c.id}" data-v="${v.id}">${noCarrinho ? '✓ No pedido' : '+ Adicionar'}</button>
+        </div>`;
+      }).join('');
+      const extra = c.extra ? `<label class="extra"><input type="checkbox" data-extra="${c.id}" ${extraSel[c.id] ? 'checked' : ''}>
+        ${esc(c.extra.nome)}: + ${brl(c.extra.preco)} no pedido</label>` : '';
+      return `<section class="prod">
+        <div class="prod-head"><h3>${esc(c.nome)}</h3><span class="tag">${esc(c.prazo)}</span></div>
+        <p class="det">${esc(c.detalhes)}</p>${chips}<div class="rows">${rows}</div>${extra}
+      </section>`;
+    }).join('');
+  }
+
+  function alternarItem(btn) {
+    const chave = btn.dataset.add;
+    const idx = carrinho.findIndex(i => i.chave === chave);
+    if (idx >= 0) carrinho.splice(idx, 1);
+    else {
+      const c = CATALOGO.find(x => x.id === btn.dataset.p);
+      const v = c.variantes.find(x => x.id === btn.dataset.v);
+      const q = qtdSel[c.id];
+      const comExtra = !!extraSel[c.id];
+      const qtdTxt = q > 1 ? `${q.toLocaleString('pt-BR')} un – ` : '';
+      carrinho.push({
+        chave,
+        texto: `${qtdTxt}${c.nome} ${v.nome}${comExtra ? ` + ${c.extra.nome.toLowerCase()}` : ''}`,
+        valor: v.pacotes[q] + (comExtra ? c.extra.preco : 0)
+      });
+    }
+    renderProdutos();
+    renderCarrinho();
+  }
+
+  function renderCarrinho() {
+    const total = carrinho.reduce((s, i) => s + i.valor, 0);
+    $('#cart').classList.toggle('show', carrinho.length > 0);
+    if (!carrinho.length) $('#cart').classList.remove('open');
+    $('#cart-qtd').textContent = carrinho.length === 1 ? '1 item' : `${carrinho.length} itens`;
+    $('#cart-total').textContent = brl(total);
+    $('#cart-pix').textContent = `${brl(comPix(total))} no PIX`;
+    $('#cart-list').innerHTML = carrinho.map((i, n) =>
+      `<div class="ci"><span>${esc(i.texto)} – <b>${brl(i.valor)}</b></span><button data-rm="${n}">remover</button></div>`).join('');
+    const msg = [
+      `Olá! Quero fazer um pedido com a ${LOJA.nome}:`,
+      ...carrinho.map(i => `• ${i.texto} – ${brl(i.valor)}`),
+      '',
+      `Total: ${brl(total)} (no PIX: ${brl(comPix(total))})`,
+      '',
+      'Meu CEP para o frete: ',
+      'Vou enviar meu logo aqui na conversa.'
+    ].join('\n');
+    $('#cart-enviar').href = waLink(msg);
+  }
+
+  function init() {
+    document.title = `${LOJA.nome} · Tabela de preços`;
+    $('#loja-nome').textContent = LOJA.nome;
+    $('#wa-topo').href = waLink(`Olá! Vi a tabela de preços da ${LOJA.nome} e quero um orçamento.`);
+    $('#conds').innerHTML = LOJA.condicoes.map(([a, b]) => `<div class="cond"><b>${esc(a)}</b>${esc(b)}</div>`).join('');
+    $('#consulta').innerHTML = SOB_CONSULTA.map(s => `<span>${esc(s)}</span>`).join('');
+    $('#wa-consulta').href = waLink(`Olá! Quero um orçamento de: ${SOB_CONSULTA.join(', ')}.`);
+    $('#faq-pag').textContent = `PIX com ${LOJA.descontoPix}% de desconto ou cartão em até ${LOJA.parcelas}x sem juros. Pagamos 50% para iniciar a produção e 50% quando o pedido estiver pronto para envio.`;
+    $('#rodape').innerHTML = `<b>${esc(LOJA.nome)}</b> · ${esc(LOJA.cidade)}${LOJA.instagram ? ' · ' + esc(LOJA.instagram) : ''}
+      · <a href="${waLink('Olá!')}" target="_blank" rel="noopener">WhatsApp</a><br>Preços por pacote, sem frete. Valores sujeitos a alteração sem aviso.`;
+
+    document.addEventListener('click', e => {
+      const chip = e.target.closest('[data-q]');
+      if (chip) { qtdSel[chip.dataset.p] = Number(chip.dataset.q); renderProdutos(); return; }
+      const add = e.target.closest('[data-add]');
+      if (add) { alternarItem(add); return; }
+      const rm = e.target.closest('[data-rm]');
+      if (rm) { carrinho.splice(Number(rm.dataset.rm), 1); renderProdutos(); renderCarrinho(); return; }
+      if (e.target.id === 'cart-ver') $('#cart').classList.toggle('open');
+    });
+    document.addEventListener('change', e => {
+      if (e.target.dataset.extra) { extraSel[e.target.dataset.extra] = e.target.checked; renderProdutos(); }
+    });
+    renderProdutos();
+    renderCarrinho();
+  }
+  init();
+  </script>
+</body>
+</html>
